@@ -1,0 +1,77 @@
+﻿@page "/recordedvideo"
+@inject HttpClient _client
+
+<h3>CW Recorded Videos</h3>
+@if (Globals.ValidatedUser)
+{
+
+    <ul>
+        @foreach (var video in _videos)
+        {
+            <li>
+               @video.Date <a href="@video.URLofVideo" target="_blank"> @video.Description</a> @video.Presentor
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <h4>You need to sign in before you can see the videos.</h4>
+}
+
+@code {
+
+    public string message = "";
+    public string errorMessage = "";
+
+    public List<CWRecordedVideo> _videos = new List<CWRecordedVideo>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Globals.ValidatedUser)
+        {
+            try
+            {
+                await ReadVideoListCSV();
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message.ToString();
+            }
+        }
+        this.StateHasChanged();
+
+    }
+
+    protected async Task ReadVideoListCSV()
+    {
+        List<string> _tape_lines = new List<string>();
+
+        // CW Webmaster / My Drive / WebSiteAttachments / Memberslists / CW Club Recorded Videos
+        // https://drive.google.com/drive/folders/15OGqNYdpWHk8sGsuMhy7t-8aDXh9Gy-T
+        string _urlToTapesCSV = "https://docs.google.com/spreadsheets/d/14pflD6ch6LTgkSPetRp0zsNauKC8IWZWIZv4fcvQJYA/export?format=csv";
+
+        HttpResponseMessage response = await _client.GetAsync(_urlToTapesCSV);
+
+        string stringOfMembers = await response.Content.ReadAsStringAsync();
+
+        _tape_lines = stringOfMembers.Split("\n").ToList();
+
+        foreach (var item in _tape_lines)
+        {
+            List<string> _fields = item.Split(",").ToList();
+            CWRecordedVideo _video = new CWRecordedVideo();
+            _video.Date = _fields[0];
+            _video.Description = _fields[1];
+            _video.Presentor = _fields[2];
+            _video.URLofVideo = _fields[3];
+
+            _videos.Add(_video);
+        }
+
+        this.StateHasChanged();
+    }
+
+
+
+}

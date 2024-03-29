@@ -1,0 +1,122 @@
+﻿@page "/"
+@inject HttpClient _client
+
+<PageTitle>Home</PageTitle>
+<div>
+    <h3>Welcome to Our Video Library!</h3>
+    <p>Discover a world of captivating content in our video library. From insightful documentaries to entertaining tutorials, 
+    we have curated a diverse collection of videos just for you. 🎥
+    </p>
+
+
+    <h4>Why Login?</h4>
+
+    <p>Before you dive into the cinematic experience, we kindly ask you to log in. </p>
+    <p>This library is for the exclusive use of members of the Chesapeake Woodturners.</p>
+    <p>We use the email address that you joined Chesapeake Woodturners with to validate your membership.</p>
+    <p>Not a member of Chesapeake Woodturners, you can sign up <a href="https://www.chesapeakewoodturners.com/become-a-member"> here</a></p>
+
+    <p> 🌟</p>
+</div>
+
+<div class="input-group col-md-4">
+    <div class="col-md-4">
+        <input type="text" @bind="InEmailAddress" @bind:event="oninput" class="form-control" placeholder="Email address">
+    </div>
+        <div class="input-group-btn">
+            <button @onclick="checkUser" class="btn-xs btn-info">Login</button>
+        </div>
+
+</div>
+<p>
+    @message
+</p>
+<p>
+    @if(Globals.Username.Length > 1)
+    {
+     <p>Signed in as @Globals.Username</p>
+    }
+</p>
+<br />
+<br />
+<br />
+<div style="text-align:center">
+    <img src="./icon-180.png" alt="Chesapeake Woodturners" />
+</div>
+@* <ul>
+    @foreach (var member in _members)
+    {
+        <li>
+            @member
+        </li>
+    }
+</ul> *@
+
+@code {
+
+    [SupplyParameterFromQuery]
+    public string InEmailAddress { get; set; } = " ";
+
+    public string message = "Enter your email address and click Login button.";
+    public string errorMessage = "";
+
+    public List<string> _members = new List<string>();
+    private List<string> _filteredEntries = new List<string>();
+
+    private void checkUser(MouseEventArgs e)
+    {
+        Globals.ResetValues();
+        message = "Did not find matching member's email address, sorry.";
+        InEmailAddress = InEmailAddress.Trim();
+        foreach (string email in _members)
+        {
+            string compareEmail = email.Trim();
+            bool result = InEmailAddress.Equals(compareEmail, StringComparison.OrdinalIgnoreCase);
+            if (result)
+            {
+                Globals.EmailAddress = email;
+                Globals.ValidatedUser = true;
+                Globals.Username = email;
+                message = "We found " + email + "start watching the videos. Click a category on the menu to the left.";
+                break;
+            }
+        }
+        this.StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Globals.ValidatedUser)
+        {
+
+        }
+        else
+        {
+            try
+            {
+                await ReadMembersCSV();
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message.ToString();
+            }
+        }
+
+    }
+
+    protected async Task ReadMembersCSV()
+    {
+        // CW Webmaster / My Drive / WebSiteAttachments / Memberslists / membersSheet
+        // https://drive.google.com/drive/folders/15OGqNYdpWHk8sGsuMhy7t-8aDXh9Gy-T
+
+        string urlToMembersCSV = "https://docs.google.com/spreadsheets/d/14oq2ZT7BlfddCh-p5IzA4RdwNMM6d344U6ELSyjCU7c/export?format=csv";
+
+        HttpResponseMessage response = await _client.GetAsync(urlToMembersCSV);
+
+        string stringOfMembers = await response.Content.ReadAsStringAsync();
+
+        _members = stringOfMembers.Split("\n").ToList();
+        this.StateHasChanged();
+    }
+
+}
