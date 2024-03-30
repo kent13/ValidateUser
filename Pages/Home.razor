@@ -4,83 +4,122 @@
 <PageTitle>Home</PageTitle>
 <div>
     <h3>Welcome to Our Video Library!</h3>
-    <p>Discover a world of captivating content in our video library. From insightful documentaries to entertaining tutorials, 
-    we have curated a diverse collection of videos just for you. 🎥
-    </p>
+    <div>
+        @if (Globals.ValidatedUser == true)
+        {
+            <p>Signed in as @Globals.Username</p>
+            <div>
+                @message
+            </div>
+
+            <!-- Button -->
+            <div class="form-group">
+                <div class="col-md-4">
+                    <button @onclick="logoutUser" id="singlebutton" name="singlebutton" class="btn btn-success">Logout</button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <p>
+                Discover a world of captivating content in our video library. From insightful documentaries to entertaining tutorials,
+                we have curated a diverse collection of videos just for you. 🎥
+            </p>
+
+            <!-- Text input-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="textinput">Email</label>
+                <div class="col-md-4">
+                    <input id="textinput" name="textinput" type="text" @bind="InEmailAddress" @bind:event="oninput" placeholder="Email address" class="form-control input-md" required="">
+                </div>
+            </div>
+
+            <!-- Password input-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="passwordinput">Password</label>
+                <div class="col-md-4">
+                    <input @bind="InPassword" @bind:event="oninput" id="passwordinput" name="passwordinput" type="password" placeholder="Club Password" class="form-control input-md" required="">
+
+                </div>
+            </div>
+
+            <!-- Button -->
+            <div class="form-group">
+
+                <div class="col-md-4">
+                    <button @onclick="checkUser" id="singlebutton" name="singlebutton" class="btn btn-success">Login</button>
+                </div>
+            </div>
+            <div>
+                @message
+            </div>
 
 
-    <h4>Why Login?</h4>
+            <br />
+            <hr />
+            <h4>Why Login?</h4>
 
-    <p>Before you dive into the cinematic experience, we kindly ask you to log in. </p>
-    <p>This library is for the exclusive use of members of the Chesapeake Woodturners.</p>
-    <p>We use the email address that you joined Chesapeake Woodturners with to validate your membership.</p>
-    <p>Not a member of Chesapeake Woodturners, you can sign up <a href="https://www.chesapeakewoodturners.com/become-a-member"> here</a></p>
+            <p>Before you dive into the cinematic experience, we kindly ask you to log in. </p>
+            <p>This library is for the exclusive use of members of the Chesapeake Woodturners.</p>
+            <p>We use the email address that you joined Chesapeake Woodturners with to validate your membership.</p>
+            <p>Not a member of Chesapeake Woodturners, you can sign up <a href="https://www.chesapeakewoodturners.com/become-a-member"> here</a></p>
 
-    <p> 🌟</p>
-</div>
-
-<div class="input-group col-md-4">
-    <div class="col-md-4">
-        <input type="text" @bind="InEmailAddress" @bind:event="oninput" class="form-control" placeholder="Email address">
+            <p> 🌟</p>
+        }
     </div>
-        <div class="input-group-btn">
-            <button @onclick="checkUser" class="btn-xs btn-info">Login</button>
-        </div>
+    ** @errorMessage **
+    <br />
+    <br />
+    <br />
+    <div style="text-align:center">
+        <img src="./icon-180.png" alt="Chesapeake Woodturners" />
+    </div>
 
 </div>
-<p>
-    @message
-</p>
-<p>
-    @if(Globals.Username.Length > 1)
-    {
-     <p>Signed in as @Globals.Username</p>
-    }
-</p>
-<br />
-<br />
-<br />
-<div style="text-align:center">
-    <img src="./icon-180.png" alt="Chesapeake Woodturners" />
-</div>
-@* <ul>
-    @foreach (var member in _members)
-    {
-        <li>
-            @member
-        </li>
-    }
-</ul> *@
 
 @code {
 
     [SupplyParameterFromQuery]
-    public string InEmailAddress { get; set; } = " ";
 
-    public string message = "Enter your email address and click Login button.";
+    public string InEmailAddress { get; set; } = "";
+    public string InPassword { get; set; } = "";
+
+    public string message = "Enter your email address and password then click Login button.";
     public string errorMessage = "";
 
     public List<string> _members = new List<string>();
-    private List<string> _filteredEntries = new List<string>();
+    public string _accessCode = "";
+
+    private void logoutUser(MouseEventArgs e)
+    {
+        Globals.ResetValues();
+        this.StateHasChanged();
+    }
 
     private void checkUser(MouseEventArgs e)
     {
         Globals.ResetValues();
-        message = "Did not find matching member's email address, sorry.";
-        InEmailAddress = InEmailAddress.Trim();
-        foreach (string email in _members)
+        message = "Did not find matching email address or password, sorry.";
+        InPassword = InPassword.Trim();
+        if (InPassword.Equals(_accessCode, StringComparison.OrdinalIgnoreCase))
         {
-            string compareEmail = email.Trim();
-            bool result = InEmailAddress.Equals(compareEmail, StringComparison.OrdinalIgnoreCase);
-            if (result)
+            InEmailAddress = InEmailAddress.Trim();
+            foreach (string email in _members)
             {
-                Globals.EmailAddress = email;
-                Globals.ValidatedUser = true;
-                Globals.Username = email;
-                message = "We found " + email + "start watching the videos. Click a category on the menu to the left.";
-                break;
+                string compareEmail = email.Trim();
+                bool result = InEmailAddress.Equals(compareEmail, StringComparison.OrdinalIgnoreCase);
+                if (result)
+                {
+                    Globals.EmailAddress = email;
+                    Globals.ValidatedUser = true;
+                    Globals.Username = email;
+                    message = "Start watching the videos. Click a category on the menu to the left.";
+                    break;
+                }
+
             }
         }
+
         this.StateHasChanged();
     }
 
@@ -116,7 +155,11 @@
         string stringOfMembers = await response.Content.ReadAsStringAsync();
 
         _members = stringOfMembers.Split("\n").ToList();
+
+        string urlAccess = "https://docs.google.com/spreadsheets/d/1g0RNfTABIHwO4A_-0Sq2ECHkvgWzVY3M3eI5JV1g540/export?format=csv";
+        HttpResponseMessage response2 = await _client.GetAsync(urlAccess);
+        _accessCode = await response2.Content.ReadAsStringAsync();
+
         this.StateHasChanged();
     }
-
 }
