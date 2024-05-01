@@ -1,18 +1,22 @@
 ﻿@page "/tapes"
 @inject HttpClient _client
 
+
 <h3>Tapes</h3>
 @if (Globals.ValidatedUser)
 {
-    <ul>
-    @foreach (var tape in _tapes)
-    {
-        <li>
-                <a href="@tape.URLofVideo" target="_blank"> @tape.Description</a> @tape.Title, @tape.Author
-        </li>
-    }
-    </ul>
-} else
+
+    <QuickGrid Items="@tapesQ" Theme="corporate">
+
+        <TemplateColumn Title="Title" SortBy="@sortByTitle" IsDefaultSortColumn="true">
+            <a href="@context.URLofVideo" target="_blank"> @context.Title</a>
+
+        </TemplateColumn>
+        <PropertyColumn Property="@(p => p.Description)" Sortable="true" />
+        <PropertyColumn Property="@(p => p.Author)" Sortable="true" />
+    </QuickGrid>
+}
+else
 {
     <h4>You need to sign in before you can see the tapes.</h4>
 }
@@ -22,8 +26,10 @@
 
     public string message = "";
     public string errorMessage = "";
+    public IQueryable<Tape>? tapesQ;
 
-    public List<Tape> _tapes = new List<Tape>();
+    GridSort<Tape> sortByTitle = GridSort<Tape>
+    .ByAscending(p => p.Title);
 
     protected override async Task OnInitializedAsync()
     {
@@ -44,7 +50,7 @@
     protected async Task ReadTapesCSV()
     {
         List<string> _tape_lines = new List<string>();
-
+        List<Tape> _tapes = new List<Tape>();
         // CW Webmaster / My Drive / WebSiteAttachments / Memberslists / Tapes List
         // https://drive.google.com/drive/folders/15OGqNYdpWHk8sGsuMhy7t-8aDXh9Gy-T
         string _urlToTapesCSV = "https://docs.google.com/spreadsheets/d/1StV1vVbnV56Nd56Pdx-RGAB-HoWzo69PIOLsZOGHG5A/export?format=csv";
@@ -66,7 +72,7 @@
 
             _tapes.Add(_tape);
         }
-        
+        tapesQ = _tapes.AsQueryable<Tape>();
         this.StateHasChanged();
     }
 
