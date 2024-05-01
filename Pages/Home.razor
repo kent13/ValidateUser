@@ -48,7 +48,8 @@
             <div class="form-group">
                 <label class="col-md-4 control-label" for="passwordinput">Password</label>
                 <div class="col-md-4">
-                    <input @bind="InPassword" @bind:event="oninput" id="passwordinput" name="passwordinput" type="password" placeholder="Club Password" class="form-control input-md" required="">
+                    <input @bind="InPassword" @bind:event="oninput" id="passwordinput" name="passwordinput" type="password" placeholder="Club Password" class="form-control input-md" required=""
+                    @onkeydown="@Enter">
 
                 </div>
             </div>
@@ -100,13 +101,27 @@
     public List<string> _members = new List<string>();
     public string _accessCode = "";
 
+
+
     private void logoutUser(MouseEventArgs e)
     {
         Globals.ResetValues();
         this.StateHasChanged();
     }
 
+    public void Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            validateLogin();
+        }
+    }
     private void checkUser(MouseEventArgs e)
+    {
+        validateLogin();
+    }
+
+    private void validateLogin()
     {
         Globals.ResetValues();
         message = "Did not find matching email address or password, sorry.";
