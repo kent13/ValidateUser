@@ -108,3 +108,10 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+
+tr:nth-child(even) {
+    background-color: #D6EEEE;
+}
+tr {
+    border-bottom: 1px solid #ddd;
+}

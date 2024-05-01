@@ -1,0 +1,28 @@
+﻿/* Stripe effect */
+::deep tbody tr { background-color: rgba(0,0,0,0.04); }
+::deep tbody tr:nth-child(even) { background: rgba(255,255,255,0.4); }
+
+
+/* Subtle stripe effect */
+::deep .quickgrid[theme=corporate] {
+    background-color: rgba(128,0,0,0.04);
+}
+
+/* Subtle stripe effect */
+::deep .quickgrid[theme=corporate] tr:nth-child(even) {
+    background: rgba(255,255,255,0.4);
+}
+
+::deep .quickgrid[theme=corporate] .col-title {
+    gap: 0.4rem; /* Separate the sort indicator from title text */
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+::deep .quickgrid[theme=corporate] .sort-indicator {
+    color: blue;
+}
+
+tr:nth-child(even) {
+    background-color: #D6EEEE;
+}

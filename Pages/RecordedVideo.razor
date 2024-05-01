@@ -5,14 +5,16 @@
 @if (Globals.ValidatedUser)
 {
 
-    <ul>
-        @foreach (var video in _videos)
-        {
-            <li>
-               @video.Date <a href="@video.URLofVideo" target="_blank"> @video.Description</a> @video.Presentor
-            </li>
-        }
-    </ul>
+    <QuickGrid Items="@videosQ" Theme="corporate" style="width:100%">
+        <PropertyColumn Property="@(p => p.Date)" Sortable="true" IsDefaultSortColumn="true" />
+
+        <TemplateColumn Title="Description" SortBy="@sortByDescription" IsDefaultSortColumn="true">
+            <a href="@context.URLofVideo" target="_blank"> @context.Description</a>
+
+        </TemplateColumn>
+
+        <PropertyColumn Property="@(p => p.Presentor)" Sortable="true" />
+    </QuickGrid>
 }
 else
 {
@@ -24,7 +26,12 @@ else
     public string message = "";
     public string errorMessage = "";
 
-    public List<CWRecordedVideo> _videos = new List<CWRecordedVideo>();
+
+    public IQueryable<CWRecordedVideo>? videosQ;
+
+    GridSort<CWRecordedVideo> sortByDescription = GridSort<CWRecordedVideo>
+    .ByAscending(p => p.Description);
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -46,6 +53,7 @@ else
     protected async Task ReadVideoListCSV()
     {
         List<string> _tape_lines = new List<string>();
+        List<CWRecordedVideo> _videos = new List<CWRecordedVideo>();
 
         // CW Webmaster / My Drive / WebSiteAttachments / Memberslists / CW Club Recorded Videos
         // https://drive.google.com/drive/folders/15OGqNYdpWHk8sGsuMhy7t-8aDXh9Gy-T
@@ -68,7 +76,7 @@ else
 
             _videos.Add(_video);
         }
-
+        videosQ = _videos.AsQueryable<CWRecordedVideo>();
         this.StateHasChanged();
     }
 

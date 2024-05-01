@@ -5,10 +5,20 @@
 <div>
     <h3>Welcome to Our Video Library!</h3>
     <div>
+        <div>@errorMessage</div>
+
+
         @if (Globals.ValidatedUser == true)
         {
             <p>Signed in as @Globals.Username</p>
+            <ul>
+            <li>See the tapes list <a href="tapes">here</a>.</li>
+            <li>See the Club Recordings list <a href="recordedvideo">here</a>.</li>
+
+            </ul>
+
             <div>
+                <br />
                 @message
             </div>
 
@@ -67,7 +77,7 @@
             <p> 🌟</p>
         }
     </div>
-    ** @errorMessage **
+
     <br />
     <br />
     <br />
