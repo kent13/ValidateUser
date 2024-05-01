@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@using System.Reflection
+
 <div class="page">
     <div class="sidebar">
         <CascadingValue Value="this">
@@ -14,5 +16,27 @@
         <article class="content px-4">
             @Body
         </article>
+        <br />
+        <br />
+        <br />
+        <div style="text-align:center">
+            <img src="./icon-180.png" alt="Chesapeake Woodturners" />
+        </div>
+        <br />
+        <hr />
+        <div class="info-panel" style="text-align:center">@BuildInfo</div>
+        <br />
+
     </main>
 </div>
+
+@code {
+    string BuildInfo;
+
+  protected override void OnInitialized()
+  {
+    Assembly curAssembly = typeof(Program).Assembly;
+    BuildInfo = $"{curAssembly.GetCustomAttributes(false).OfType<AssemblyTitleAttribute>().FirstOrDefault().Title}";
+    }
+
+}

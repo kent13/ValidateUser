@@ -43,17 +43,25 @@
                     <input id="textinput" name="textinput" type="text" @bind="InEmailAddress" @bind:event="oninput" placeholder="Email address" class="form-control input-md" required="">
                 </div>
             </div>
-
+            <br />
             <!-- Password input-->
             <div class="form-group">
                 <label class="col-md-4 control-label" for="passwordinput">Password</label>
                 <div class="col-md-4">
-                    <input @bind="InPassword" @bind:event="oninput" id="passwordinput" name="passwordinput" type="password" placeholder="Club Password" class="form-control input-md" required=""
+                    <input @bind="InPassword" @bind:event="oninput" id="passwordinput" name="passwordinput" placeholder="Club Password" class="form-control input-md" required="" 
+                    type="@(ShowPassword ? "text" : "password")" 
                     @onkeydown="@Enter">
 
                 </div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" @bind="ShowPassword" class="form-check-input" />
+                    <label class="form-check-label" for="showPassword">Show Password</label>
+                </div>
             </div>
-
+            <div>
+                @message
+            </div>
+            <br />
             <!-- Button -->
             <div class="form-group">
 
@@ -61,9 +69,7 @@
                     <button @onclick="checkUser" id="singlebutton" name="singlebutton" class="btn btn-success">Login</button>
                 </div>
             </div>
-            <div>
-                @message
-            </div>
+
 
 
             <br />
@@ -79,12 +85,7 @@
         }
     </div>
 
-    <br />
-    <br />
-    <br />
-    <div style="text-align:center">
-        <img src="./icon-180.png" alt="Chesapeake Woodturners" />
-    </div>
+
 
 </div>
 
@@ -101,7 +102,14 @@
     public List<string> _members = new List<string>();
     public string _accessCode = "";
 
+    private InputModel Input = new();
 
+    private bool ShowPassword { get; set; } = false;
+
+    private sealed class InputModel
+    {
+        public string Password { get; set; } = "";
+    }
 
     private void logoutUser(MouseEventArgs e)
     {
